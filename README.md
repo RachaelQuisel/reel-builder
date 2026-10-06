@@ -5,7 +5,7 @@ Builds the 6-second Instagram reels (1080x1350, 4:5 portrait, 30fps) that announ
 ## What a reel looks like
 
 - Tagline at the top, a "new plugin" label, the plugin's icon in the center, and the plugin name typing in at the bottom
-- A real, recognizable classical piece underneath, a different one for each plugin
+- Optional music added after the silent reel is built, with recording rights checked separately
 - A full description below each post, modeled on the Questions Worth Asking post
 - Style locked October 4, 2026
 
@@ -13,23 +13,39 @@ Builds the 6-second Instagram reels (1080x1350, 4:5 portrait, 30fps) that announ
 
 ### build_plugin_reel.py
 
-Builds a plugin announcement reel.
+Builds a plugin announcement reel from the icons in this repository. From a fresh clone, install
+Python 3, [Pillow](https://pypi.org/project/pillow/), and ffmpeg. The script uses installed Noto
+Sans or DejaVu Sans fonts on Linux, or Arial on macOS. To keep the Noto look on another system,
+pass `--font-dir` with `NotoSans-Bold.ttf` and `NotoSans-Medium.ttf`.
 
+```sh
+git clone https://github.com/RachaelQuisel/reel-builder.git
+cd reel-builder
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install pillow
+# Install ffmpeg with your system package manager if it is not on PATH.
+python build_plugin_reel.py github-portfolio-builder
 ```
-python3 build_plugin_reel.py questions-worth-asking
-```
 
-Run it with no argument to see the list of plugins. To add a plugin, add an entry to the `PLUGINS` dictionary (name, tagline, icon, two gradient colors, caption).
+This first run needs no music, copied assets, or path edits. It writes to `out/`:
 
-Output, written to the `OUT` folder:
+- `github-portfolio-builder-reel.mp4` — six-second silent reel
+- `github-portfolio-builder-reel-cover.png` — final frame for a cover
 
-- `{slug}-reel-final.mp4` (the reel with music)
-- `{slug}-reel.mp4` (silent version)
-- `{slug}-reel-cover.png` (last frame, for the cover image)
+See the [silent sample reel](examples/github-portfolio-builder-reel.mp4) and its
+[cover image](examples/github-portfolio-builder-reel-cover.png), generated with that command on
+October 6, 2026. The sample contains no audio or client data. System fonts can change letter
+spacing slightly; the layout, assets, dimensions, and timing come from this script.
+
+Run `python build_plugin_reel.py --help` for the available slugs and options. Use `--output-dir`
+to put the files elsewhere, `--icon-dir` for another icon folder, or `--font-dir` for Noto Sans.
+When you have a recording you can use, pass `--music /path/to/track.m4a`; the script then also
+writes `{slug}-reel-final.mp4` with audio. No recording is bundled with this repository.
+To add a plugin, put its icon in `assets/icons/` and add its name, tagline, icon filename, and
+gradient colors to the `PLUGINS` dictionary.
 
 This is the locked style. Edit this script when the style needs to change instead of starting over.
-
-> The Satie track was removed from this repo. The script's `MUSIC` setting still points to `gymnopedie-6s.m4a`, so set `MUSIC` to the new piece's file before the next build.
 
 ### build_podcast_reel.py
 
@@ -44,20 +60,21 @@ Output: `{slug}-reel-piano.mp4`, `{slug}-reel.mp4`, and `{slug}-reel-cover.png` 
 ## What you need
 
 - Python 3 with Pillow (`pip install pillow`)
-- ffmpeg
-- Noto Sans fonts (Bold, Regular, Medium) at `/usr/share/fonts/truetype/noto/`. On Debian or Ubuntu: `sudo apt install fonts-noto-core`
+- ffmpeg on `PATH` (for example, `brew install ffmpeg` on macOS or `sudo apt install ffmpeg` on Debian or Ubuntu)
+- Noto Sans or DejaVu Sans on Linux, or Arial on macOS. For Noto Sans on Debian or Ubuntu, install `fonts-noto-core`.
 
 ## Assets
 
-The scripts read assets from hard-coded folders. Copy the files from this repo into those folders before you run them.
+The plugin reel script reads these icons directly from `assets/icons/`:
 
-| File in this repo | Copy it to | Used by |
-|---|---|---|
-| `assets/icons/worth-asking.png` | `REF` folder | build_plugin_reel.py |
-| `assets/icons/github-portfolio-creator.png` | `REF` folder | build_plugin_reel.py |
-| `assets/icons/secure-your-data.png` | `REF` folder | build_plugin_reel.py |
+| File | Plugin slug |
+|---|---|
+| `assets/icons/worth-asking.png` | `questions-worth-asking` |
+| `assets/icons/github-portfolio-creator.png` | `github-portfolio-builder` |
+| `assets/icons/secure-your-data.png` | `secure-your-data` |
 
-`OUT` and `REF` are set at the top of each script. Change them to match your machine.
+`build_podcast_reel.py` is a separate author workflow and still uses local paths and assets. Its
+output and reference folders must be configured before that script can run.
 
 Not in this repo yet (build_podcast_reel.py needs these to run):
 
@@ -97,7 +114,9 @@ ffmpeg -i {slug}-reel.mp4 -t 6 -i <track>.mp3 \
 
 ### Step 3: Build the reel
 
-Run `build_plugin_reel.py` with the plugin's slug (see Scripts above).
+Run `build_plugin_reel.py` with the plugin's slug (see Scripts above). Pass the chosen recording
+with `--music` if you want the script to produce the audio version. The silent reel is ready for
+review without a music file.
 
 ### Step 4: Write the description
 
@@ -136,4 +155,6 @@ Music credit format for a CC BY recording:
 
 ### Step 5: Post to Instagram
 
-Post `{slug}-reel-final.mp4` with `{slug}-reel-cover.png` as the cover and the description from Step 4, tagging @the_rachael_review in the center of the frame.
+Post `{slug}-reel-final.mp4` when you added licensed music, or `{slug}-reel.mp4` when you chose a
+silent post. Use `{slug}-reel-cover.png` as the cover and the description from Step 4, tagging
+@the_rachael_review in the center of the frame.
